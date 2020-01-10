@@ -5,38 +5,38 @@
     <!-- /导航栏 -->
 
     <!-- 登录表单 -->
-    <van-cell-group>
-      <van-field
-        v-model="user.mobile"
-        required
-        clearable
-        label="手机号"
-        placeholder="请输入手机号"
-      />
-      <i class="icon icon-shouji" slot="left-icon"></i>
-      <van-field
-        v-model="user.code"
-        label="验证码"
-        placeholder="请输入验证码"
-        required
-      >
-      <i class="icon icon-mima" slot="left-icon"></i>
-      <van-count-down
-      v-if="isCountDownShow"
-      :time="1000 * 60"
-      slot="button"
-       format="ss s"
-       />
-        <van-button
-        @click="onGetSmsCode"
-        slot="button"
-        size="small"
-        type="primary"
-        v-else
-        @finish='isCountDownShow=false'
-        >发送验证码</van-button>
-      </van-field>
-    </van-cell-group>
+    <ValidationObserver ref="form">
+      <ValidationProvider name="手机号" rules="required|mobile">
+          <van-field
+            class="form-item"
+            v-model="user.mobile"
+            clearable
+            placeholder="请输入手机号">
+            <i class="iconfont icon-shouji" slot="left-icon"></i>
+          </van-field>
+      </ValidationProvider>
+      <ValidationProvider name="验证码" rules="required|code">
+            <van-field
+              class="form-item"
+              v-model="user.code"
+              placeholder="请输入验证码">
+              <i class="iconfont icon-mima" slot="left-icon"></i>
+                <van-count-down
+                v-if="isCountDownShow"
+                :time="1000 * 60"
+                slot="button"
+                format="ss s"
+                @finish='isCountDownShow=false'/>
+                  <van-button
+                  @click="onGetSmsCode"
+                  slot="button"
+                  size="small"
+                  type="primary"
+                  v-else
+                  >发送验证码</van-button>
+            </van-field>
+      </ValidationProvider>
+    </ValidationObserver>
 
     <div class="btn-wrap">
       <van-button @click="onLogin" type="info">登录</van-button>
@@ -48,6 +48,7 @@
 <script>
 // import {login } from '@api/user'
 import { login, getSmsCode } from '../../api/user'
+import { validate } from 'vee-validate'
 export default {
   name: 'LoginPage',
   components: {},
@@ -67,6 +68,18 @@ export default {
   methods: {
     async onLogin () {
       const user = this.user
+      const success = await this.$refs.form.validate()
+      if (!success) {
+        // console.log('验证失败')
+
+        // this.$toast(this.$refs.form.errors[0])
+        setTimeout(() => {
+          let { errors } = this.$refs.form
+          let item = Object.values(errors).find(item => item[0])
+          this.$toast(item[0])
+        }, 100)
+        return
+      }
       this.$toast.loading({
         duration: 0,
         message: '登陆中...',
@@ -75,6 +88,7 @@ export default {
       try {
         const res = await login(user)
         console.log(res)
+        this.$store.commit('setUser', res.data.data)
         this.$toast.success('登陆成功')
       } catch (error) {
         console.log('登陆失败', error)
@@ -83,6 +97,13 @@ export default {
     },
     async onGetSmsCode () {
       let { mobile } = this.user
+      let validateResult = await validate(mobile, 'required|mobile', {
+        name: '手机号'
+      })
+      if (!validateResult.valid) {
+        this.$toast(validateResult.errors[0])
+        return
+      }
       try {
         this.isCountDownShow = true
         await getSmsCode(mobile)
