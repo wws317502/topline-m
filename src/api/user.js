@@ -20,3 +20,10 @@ export const getUserInof = () => {
 
   })
 }
+export const getUserChannels = () => {
+  return request({
+    url: '/app/v1_0/user/channels',
+    method: 'get'
+
+  })
+}
