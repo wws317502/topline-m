@@ -65,6 +65,7 @@
         style="text-align: center;"
         title="退出登录"
         clickable
+        @click="dropOut"
       />
     </van-cell-group>
     <!-- /其它 -->
@@ -94,6 +95,18 @@ export default {
     async loadUser () {
       let { data } = await getUserInof()
       this.user = data.data
+    },
+    dropOut () {
+      this.$dialog.confirm({
+        title: '退出登录',
+        message: '确定要退出吗？'
+      }).then(() => {
+        // on confirm
+        this.$store.commit('setUser', null)
+      }).catch(() => {
+        // on cancel
+        this.$toast('已取消退出')
+      })
     }
   }
 }
