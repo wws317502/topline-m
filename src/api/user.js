@@ -13,3 +13,10 @@ export const getSmsCode = mobile => {
 
   })
 }
+export const getUserInof = () => {
+  return request({
+    url: '/app/v1_0/user',
+    method: 'get'
+
+  })
+}
