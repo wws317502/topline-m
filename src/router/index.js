@@ -1,23 +1,30 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-// import index from '../views/index.vue'
-import login from '../views/login/index.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: '/',
-    name: 'login',
-    component: login
+    path: '/login',
+    component: () => import('../views/login/index.vue')
   },
   {
-    path: '/login',
-    name: 'login',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/login/index.vue')
+    path: '/',
+    component: () => import('../views/tab-bar/index.vue'),
+    children: [{
+      path: '',
+      component: () => import('../views/home/index.vue')
+    }, {
+      path: 'qa',
+      component: () => import('../views/qa/index.vue')
+    }, {
+      path: 'my',
+      component: () => import('../views/my/index.vue')
+    }, {
+      path: 'video',
+      component: () => import('../views/video/index.vue')
+    }]
+
   }
 ]
 

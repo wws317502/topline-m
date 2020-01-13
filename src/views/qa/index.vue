@@ -1,6 +1,6 @@
 <template>
-  <div>
-
+  <div class="qa">
+    问答
   </div>
 </template>
 
